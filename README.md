@@ -95,10 +95,11 @@ same: configure the host to run `npx -y @changepilot/mcp-server` with
 
 ## Environment variables
 
-| Var                     | Default                          | Notes |
-| ----------------------- | -------------------------------- | ----- |
-| `CHANGEPILOT_API_TOKEN` | _(required)_                     | Personal API token from the portal. |
-| `CHANGEPILOT_API_URL`   | `https://api.changepilot.cloud`  | Override for staging/dev. |
+| Var                        | Default                              | Notes |
+| -------------------------- | ------------------------------------ | ----- |
+| `CHANGEPILOT_API_TOKEN`    | _(required)_                         | Personal API token from the portal. |
+| `CHANGEPILOT_API_URL`      | `https://changepilot.azure-api.net`  | Override for staging/dev. |
+| `CHANGEPILOT_API_MGMT_KEY` | _(baked-in default)_                 | Azure API Management subscription key. Dedicated to MCP traffic so the gateway can rate-limit and meter it independently from the portal; not a user secret. |
 
 ## Local development
 

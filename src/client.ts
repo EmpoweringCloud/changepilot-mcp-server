@@ -1,13 +1,22 @@
 // Thin HTTP wrapper around the ChangePilot reporting API.  Authentication is
-// a single bearer token supplied via env (CHANGEPILOT_API_TOKEN).  The token
-// is minted in the ChangePilot portal under Profile → API Tokens and looks
-// like `cpat_<…>`.
+// a personal bearer token supplied via env (CHANGEPILOT_API_TOKEN) that is
+// minted in the ChangePilot portal under Profile → Personal API Tokens and
+// looks like `cpat_<…>`.
+//
+// All ChangePilot API traffic is fronted by Azure API Management at
+// `changepilot.azure-api.net`, which requires a subscription key alongside
+// the bearer token.  The default key below is a dedicated MCP-traffic
+// subscription so the gateway can rate-limit and meter MCP usage
+// independently from the portal.  Override via CHANGEPILOT_API_MGMT_KEY
+// for staging/dev.
 
-const DEFAULT_BASE_URL = "https://api.changepilot.cloud";
+const DEFAULT_BASE_URL = "https://changepilot.azure-api.net";
+const DEFAULT_MGMT_KEY = "3e028b54c82d446db9df7a676eb7a5b7";
 
 export interface ClientConfig {
   baseUrl: string;
   token: string;
+  mgmtKey: string;
 }
 
 export function loadConfig(): ClientConfig {
@@ -17,12 +26,13 @@ export function loadConfig(): ClientConfig {
     // server fails to start, so we make it actionable.
     throw new Error(
       "CHANGEPILOT_API_TOKEN is not set. Generate a personal API token in the " +
-        "ChangePilot portal (Profile → API Tokens) and add it to your MCP " +
+        "ChangePilot portal (Profile → Personal API Tokens) and add it to your MCP " +
         "client config.",
     );
   }
   const baseUrl = (process.env.CHANGEPILOT_API_URL ?? DEFAULT_BASE_URL).replace(/\/+$/, "");
-  return { baseUrl, token };
+  const mgmtKey = process.env.CHANGEPILOT_API_MGMT_KEY ?? DEFAULT_MGMT_KEY;
+  return { baseUrl, token, mgmtKey };
 }
 
 export interface ApiError extends Error {
@@ -59,6 +69,8 @@ export async function apiGet<T>(
   const res = await fetch(url, {
     method: "GET",
     headers: {
+      // APIM subscription key — required by changepilot.azure-api.net.
+      "EmpoweringCloudAPI-key": cfg.mgmtKey,
       Authorization: `Bearer ${cfg.token}`,
       Accept: "application/json",
       "User-Agent": "changepilot-mcp/0.1",
