@@ -2,7 +2,24 @@
   "name": "@changepilot/mcp-server",
   "version": "0.1.0",
   "description": "Model Context Protocol server for the ChangePilot reporting API",
-  "license": "UNLICENSED",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EmpoweringCloud/changepilot-mcp-server.git"
+  },
+  "homepage": "https://portal.changepilot.cloud/mcp",
+  "bugs": {
+    "url": "https://github.com/EmpoweringCloud/changepilot-mcp-server/issues"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "claude",
+    "changepilot",
+    "microsoft-365",
+    "message-center",
+    "roadmap"
+  ],
   "type": "module",
   "bin": {
     "changepilot-mcp": "dist/index.js"
@@ -10,7 +27,8 @@
   "main": "dist/index.js",
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "engines": {
     "node": ">=20"
