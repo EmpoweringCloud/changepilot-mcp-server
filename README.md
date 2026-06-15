@@ -28,6 +28,42 @@ no-liability terms.
 A ChangePilot subscription with API access is required to use this
 server.
 
+## How it works — read this first
+
+> **This is not a hosted service. There is nothing to deploy.**
+
+`changepilot-mcp-server` is a **local subprocess** that your MCP host
+(Claude Code, Claude Desktop, Cursor, etc.) launches on **your own
+machine** when it needs to talk to ChangePilot. It communicates with
+the host over stdio — there is no network listener, no port to open,
+no Docker image, no Azure App Service to set up. The only outbound
+network traffic is HTTPS from your machine to
+`changepilot.azure-api.net`.
+
+The typical flow is:
+
+```
+┌──────────────┐  stdio   ┌────────────────────────┐  HTTPS   ┌─────────────────────┐
+│ Claude Code  │ ───────▶ │ changepilot-mcp-server │ ───────▶ │ ChangePilot API     │
+│ (your laptop)│ ◀─────── │ (subprocess, your      │ ◀─────── │ (APIM gateway)      │
+└──────────────┘          │  laptop)               │          └─────────────────────┘
+                          └────────────────────────┘
+```
+
+The `npx -y @changepilot/mcp-server` command in the install snippets
+below is what the host runs each time it spawns the subprocess —
+**you do not run it yourself**, you just put it in the host's MCP
+config. `npx` downloads the package the first time, caches it, and
+re-uses the cache on every subsequent launch.
+
+### Prerequisites
+
+- Node.js **20 or newer** installed on the machine that runs your MCP
+  host. Check with `node --version`.
+- An MCP-aware host already installed (Claude Code, Claude Desktop,
+  Cursor, Windsurf …).
+- A personal API token from the [ChangePilot portal](https://portal.changepilot.cloud/profile).
+
 ## Tools
 
 All tools speak stdio MCP and return JSON.
@@ -62,6 +98,9 @@ it. Revoke at any time on the same page; revocation propagates within
 
 ## Install — Claude Code
 
+You are **registering the package with Claude Code**, not running it.
+Claude Code will spawn it for you whenever a tool call needs it.
+
 ```sh
 claude mcp add changepilot \
   --env CHANGEPILOT_API_TOKEN=cpat_xxxxxxxxxxxxxxxxxxxxxxxx \
@@ -89,9 +128,10 @@ listed with twelve tools.
 
 ## Install — Claude Desktop / Cursor / other MCP clients
 
-Any MCP host that supports stdio servers will work. The pattern is the
-same: configure the host to run `npx -y @changepilot/mcp-server` with
-`CHANGEPILOT_API_TOKEN` in the environment.
+Any MCP host that supports stdio servers will work. The pattern is
+identical: tell the host to spawn `npx -y @changepilot/mcp-server`
+with `CHANGEPILOT_API_TOKEN` in the environment. Again — you put this
+in the host's MCP config, you do not run it directly.
 
 ## Environment variables
 
@@ -103,11 +143,30 @@ same: configure the host to run `npx -y @changepilot/mcp-server` with
 
 ## Local development
 
+> Only relevant if you want to **modify** the server. End users do not
+> need to clone this repo or run anything here.
+
 ```sh
 git clone https://github.com/EmpoweringCloud/changepilot-mcp-server.git
 cd changepilot-mcp-server
 npm install
 CHANGEPILOT_API_TOKEN=cpat_... npm run dev
+```
+
+To test a local checkout against a real MCP host, point the host's
+config at the absolute path of `src/index.ts` (via tsx) or the built
+`dist/index.js`, e.g.:
+
+```jsonc
+{
+  "mcpServers": {
+    "changepilot-dev": {
+      "command": "node",
+      "args": ["/absolute/path/to/changepilot-mcp-server/dist/index.js"],
+      "env": { "CHANGEPILOT_API_TOKEN": "cpat_..." }
+    }
+  }
+}
 ```
 
 Useful scripts:
