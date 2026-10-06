@@ -50,11 +50,14 @@ The typical flow is:
                           └────────────────────────┘
 ```
 
-The `npx -y @changepilot/mcp-server` command in the install snippets
-below is what the host runs each time it spawns the subprocess —
-**you do not run it yourself**, you just put it in the host's MCP
-config. `npx` downloads the package the first time, caches it, and
-re-uses the cache on every subsequent launch.
+The `npx -y github:EmpoweringCloud/changepilot-mcp-server` command in the
+install snippets below is what the host runs each time it spawns the
+subprocess — **you do not run it yourself**, you just put it in the
+host's MCP config. `npx` fetches this repository and builds it the first
+time, caches it, and re-uses the cache on every subsequent launch.
+
+> The package is installed straight from GitHub. It is not published to
+> the npm registry, so `npx @changepilot/mcp-server` will not work.
 
 ### Prerequisites
 
@@ -104,7 +107,7 @@ Claude Code will spawn it for you whenever a tool call needs it.
 ```sh
 claude mcp add changepilot \
   --env CHANGEPILOT_API_TOKEN=cpat_xxxxxxxxxxxxxxxxxxxxxxxx \
-  -- npx -y @changepilot/mcp-server
+  -- npx -y github:EmpoweringCloud/changepilot-mcp-server
 ```
 
 …or edit `~/.claude/mcp.json` (or your project's `.mcp.json`) directly:
@@ -114,7 +117,7 @@ claude mcp add changepilot \
   "mcpServers": {
     "changepilot": {
       "command": "npx",
-      "args": ["-y", "@changepilot/mcp-server"],
+      "args": ["-y", "github:EmpoweringCloud/changepilot-mcp-server"],
       "env": {
         "CHANGEPILOT_API_TOKEN": "cpat_xxxxxxxxxxxxxxxxxxxxxxxx"
       }
@@ -129,8 +132,8 @@ listed with twelve tools.
 ## Install — Claude Desktop / Cursor / other MCP clients
 
 Any MCP host that supports stdio servers will work. The pattern is
-identical: tell the host to spawn `npx -y @changepilot/mcp-server`
-with `CHANGEPILOT_API_TOKEN` in the environment. Again — you put this
+identical: tell the host to spawn
+`npx -y github:EmpoweringCloud/changepilot-mcp-server` with `CHANGEPILOT_API_TOKEN` in the environment. Again — you put this
 in the host's MCP config, you do not run it directly.
 
 ## Environment variables
@@ -139,7 +142,23 @@ in the host's MCP config, you do not run it directly.
 | -------------------------- | ------------------------------------ | ----- |
 | `CHANGEPILOT_API_TOKEN`    | _(required)_                         | Personal API token from the portal. |
 | `CHANGEPILOT_API_URL`      | `https://changepilot.azure-api.net`  | Override for staging/dev. |
-| `CHANGEPILOT_API_MGMT_KEY` | _(baked-in default)_                 | Azure API Management subscription key. Dedicated to MCP traffic so the gateway can rate-limit and meter it independently from the portal; not a user secret. |
+| `CHANGEPILOT_API_MGMT_KEY` | _(baked-in default)_                 | Azure API Management subscription key. Leave unset; override only for staging/dev. |
+
+### About the baked-in gateway key
+
+`src/client.ts` contains a gateway subscription key in plain sight. That
+is deliberate, and it is **not a secret**:
+
+- It is a public client key. It identifies "the MCP client" to the
+  ChangePilot gateway so MCP traffic can be rate-limited and metered
+  apart from the portal's. Every copy of this client carries the same one.
+- It grants no access to data by itself. Every request also needs your
+  personal `cpat_` token, which is the secret, and which this repository
+  never contains.
+- The gateway rate-limits callers by IP address.
+
+If a secret scanner flags it, that is expected. Your `cpat_` token is the
+thing to protect: keep it in your MCP host's config, never in a commit.
 
 ## Local development
 

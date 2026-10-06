@@ -5,10 +5,18 @@
 //
 // All ChangePilot API traffic is fronted by Azure API Management at
 // `changepilot.azure-api.net`, which requires a subscription key alongside
-// the bearer token.  The default key below is a dedicated MCP-traffic
-// subscription so the gateway can rate-limit and meter MCP usage
-// independently from the portal.  Override via CHANGEPILOT_API_MGMT_KEY
-// for staging/dev.
+// the bearer token.
+//
+// DEFAULT_MGMT_KEY is a PUBLIC CLIENT KEY, not a secret, and it is in this
+// public repository on purpose. It identifies "the MCP client" to the
+// gateway, so MCP traffic can be rate-limited and metered apart from the
+// portal's; every copy of this client carries the same one, exactly as the
+// portal's own gateway key is in every browser. On its own it reads nothing:
+// every request also needs the user's personal `cpat_` token, which IS a
+// secret and is never stored here. The gateway rate-limits callers by IP.
+// Secret scanners will flag it; that is expected.
+//
+// Override via CHANGEPILOT_API_MGMT_KEY for staging/dev.
 
 const DEFAULT_BASE_URL = "https://changepilot.azure-api.net";
 const DEFAULT_MGMT_KEY = "3e028b54c82d446db9df7a676eb7a5b7";
