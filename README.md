@@ -65,7 +65,7 @@ time, caches it, and re-uses the cache on every subsequent launch.
   host. Check with `node --version`.
 - An MCP-aware host already installed (Claude Code, Claude Desktop,
   Cursor, Windsurf …).
-- A personal API token from the [ChangePilot portal](https://portal.changepilot.cloud/profile).
+- An API key from the [ChangePilot portal](https://app.changepilot.cloud/api).
 
 ## Tools
 
@@ -89,13 +89,13 @@ All tools speak stdio MCP and return JSON.
 
 ## Auth
 
-Authentication is a personal API token minted in the ChangePilot portal:
+Authentication is an API key minted in the ChangePilot portal:
 
-1. Open <https://portal.changepilot.cloud/profile> → **Personal API Tokens**.
-2. Click **New token**, give it a name (e.g. "Claude Code on laptop").
+1. Open <https://app.changepilot.cloud/api> → **API keys**.
+2. Click **New key**, give it a name (e.g. "Claude Code on laptop").
 3. Copy the `cpat_…` value — it is shown only once.
 
-The token inherits the same data-access rights as the user that minted
+The key inherits the same data-access rights as the user that minted
 it. Revoke at any time on the same page; revocation propagates within
 ~60 seconds.
 
@@ -140,7 +140,7 @@ in the host's MCP config, you do not run it directly.
 
 | Var                        | Default                              | Notes |
 | -------------------------- | ------------------------------------ | ----- |
-| `CHANGEPILOT_API_TOKEN`    | _(required)_                         | Personal API token from the portal. |
+| `CHANGEPILOT_API_TOKEN`    | _(required)_                         | API key from the portal. |
 | `CHANGEPILOT_API_URL`      | `https://changepilot.azure-api.net`  | Override for staging/dev. |
 | `CHANGEPILOT_API_MGMT_KEY` | _(baked-in default)_                 | Azure API Management subscription key. Leave unset; override only for staging/dev. |
 
@@ -153,11 +153,11 @@ is deliberate, and it is **not a secret**:
   ChangePilot gateway so MCP traffic can be rate-limited and metered
   apart from the portal's. Every copy of this client carries the same one.
 - It grants no access to data by itself. Every request also needs your
-  personal `cpat_` token, which is the secret, and which this repository
+  `cpat_` API key, which is the secret, and which this repository
   never contains.
 - The gateway rate-limits callers by IP address.
 
-If a secret scanner flags it, that is expected. Your `cpat_` token is the
+If a secret scanner flags it, that is expected. Your `cpat_` API key is the
 thing to protect: keep it in your MCP host's config, never in a commit.
 
 ## Local development
@@ -196,8 +196,8 @@ Useful scripts:
 
 ## Reporting issues
 
-Open an issue on this repository. Please **do not** paste raw tokens or
-tenant-identifiable data; redact the bearer token and any MCID/Roadmap
+Open an issue on this repository. Please **do not** paste raw API keys or
+tenant-identifiable data; redact the key and any MCID/Roadmap
 IDs you'd prefer to keep private.
 
 ## License
