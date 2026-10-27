@@ -1,18 +1,18 @@
 // Thin HTTP wrapper around the ChangePilot reporting API.  Authentication is
-// a personal bearer token supplied via env (CHANGEPILOT_API_TOKEN) that is
-// minted in the ChangePilot portal under Profile → Personal API Tokens and
+// a per-user API key supplied via env (CHANGEPILOT_API_TOKEN) that is
+// minted in the ChangePilot portal on the API page (app.changepilot.cloud/api) and
 // looks like `cpat_<…>`.
 //
 // All ChangePilot API traffic is fronted by Azure API Management at
 // `changepilot.azure-api.net`, which requires a subscription key alongside
-// the bearer token.
+// the API key in the Authorization header.
 //
 // DEFAULT_MGMT_KEY is a PUBLIC CLIENT KEY, not a secret, and it is in this
 // public repository on purpose. It identifies "the MCP client" to the
 // gateway, so MCP traffic can be rate-limited and metered apart from the
 // portal's; every copy of this client carries the same one, exactly as the
 // portal's own gateway key is in every browser. On its own it reads nothing:
-// every request also needs the user's personal `cpat_` token, which IS a
+// every request also needs the user's `cpat_` API key, which IS a
 // secret and is never stored here. The gateway rate-limits callers by IP.
 // Secret scanners will flag it; that is expected.
 //
@@ -33,8 +33,8 @@ export function loadConfig(): ClientConfig {
     // The MCP host (Claude Code, etc.) shows this string to the user when the
     // server fails to start, so we make it actionable.
     throw new Error(
-      "CHANGEPILOT_API_TOKEN is not set. Generate a personal API token in the " +
-        "ChangePilot portal (Profile → Personal API Tokens) and add it to your MCP " +
+      "CHANGEPILOT_API_TOKEN is not set. Generate an API key in the " +
+        "ChangePilot portal (app.changepilot.cloud/api → API keys) and add it to your MCP " +
         "client config.",
     );
   }

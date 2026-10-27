@@ -72,7 +72,7 @@ function buildServer(cfg: ClientConfig): McpServer {
   // --- Message Center ---
   server.tool(
     "list_message_center_items",
-    "List Microsoft 365 Message Center items, optionally filtered by product, change category, admin/user impact and date windows.  Tenant-scoped when the bearer token belongs to a user whose tenant ID is known to ChangePilot; otherwise returns only publicly-visible items.",
+    "List Microsoft 365 Message Center items, optionally filtered by product, change category, admin/user impact and date windows.  Tenant-scoped when the API key belongs to a user whose tenant ID is known to ChangePilot; otherwise returns only publicly-visible items.",
     listMessageCenterItemsSchema,
     wrap(listMessageCenterItems),
   );
@@ -172,7 +172,7 @@ function buildServer(cfg: ClientConfig): McpServer {
           "list_taxonomy_statuses",
           "list_taxonomy_change_categories",
         ],
-        auth: "Personal API token (cpat_*) supplied via CHANGEPILOT_API_TOKEN env var",
+        auth: "API key (cpat_*) supplied via CHANGEPILOT_API_TOKEN env var",
       };
       return { content: [{ type: "text" as const, text: JSON.stringify(desc, null, 2) }] };
     },
